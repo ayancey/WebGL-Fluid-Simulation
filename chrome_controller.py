@@ -36,19 +36,34 @@ def print_remove(joy):
     print('Removed', joy)
 
 
+key_6_handle = 0
+key_5_handle = 0
+
+
 def key_received(key):
+    global key_6_handle
+    global key_5_handle
+
     # Only care about button down
     if key.value == 1:
         if key.number == 6:
             print("key 6 pressed")
-            driver.execute_script("runLoop(h1_x, h1_y, 0, 0.01);")
-            # send_osc_value("/composition/layers/2/clips/1/connect", 1)
+            key_6_handle = driver.execute_script("return startButton(6, h1_x, h1_y);")
+            print(key_6_handle)
         elif key.number == 5:
             print("key 5 pressed")
-            driver.execute_script("runLoop(h4_x, h4_y, 0, -0.01);")
-            # send_osc_value("/composition/layers/2/clips/2/connect", 1)
+            key_5_handle = driver.execute_script("return startButton(5, h4_x, h4_y);")
         else:
             print("unknown button pressed")
+    elif key.value == 0:
+        if key.number == 6:
+            if key_6_handle != 0:
+                driver.execute_script(f"clearInterval({key_6_handle});")
+        elif key.number == 5:
+            if key_5_handle != 0:
+                driver.execute_script(f"clearInterval({key_5_handle});")
+    else:
+        print("what is this shit")
 
 
 run_event_loop(print_add, print_remove, key_received)

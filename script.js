@@ -68,13 +68,14 @@ let config = {
     PRESSURE_ITERATIONS: 20,
     CURL: 0,
     // ALEXNOTE: Use only for testing!!!
-    SPLAT_RADIUS: 1,
+    //SPLAT_RADIUS: 1,
+    SPLAT_RADIUS: 0.25,
     //SPLAT_RADIUS: 10,
     // SPLAT_RADIUS: 0.25,
     // SPLAT_FORCE: 6000,
 
     // ALEX VALUE FOR TESTING
-    SPLAT_FORCE: 30000,
+    SPLAT_FORCE: 6000,
     SHADING: false,
     COLORFUL: false,
     COLOR_UPDATE_SPEED: 2,
@@ -1769,6 +1770,110 @@ function runLoop(initial_x, initial_y, delta_x, delta_y) {
 
     updatePointerDownData(pointers[pLength - 1], timemillis, loop_x * canvas.width, loop_y * canvas.height);
     myLoop(delta_x, delta_y, timemillis)
+}
+
+
+function calculateNormalizedCircleCoordinates(centerX, centerY, radius, numPoints) {
+    const circlePoints = [];
+
+    for (let i = 0; i < numPoints; i++) {
+        const theta = (2 * Math.PI * i) / numPoints;
+        const x = centerX + 0.5 * Math.cos(theta) * radius; // Normalizing x between 0 and 1
+        const y = centerY + 0.5 * Math.sin(theta) * radius; // Normalizing y between 0 and 1
+        circlePoints.push({ x, y });
+    }
+
+    // Log the normalized (x, y) coordinates
+    console.log("Normalized Circle Coordinates:");
+    circlePoints.forEach(point => {
+        console.log(`(${point.x}, ${point.y})`);
+    });
+    return circlePoints;
+}
+
+
+function startButton(button_id, initial_x, initial_y) {
+
+    console.log("button started");
+
+    let pLength = pointers.push(new pointerPrototype());
+    let timemillis = Date.now();
+    updatePointerDownData(pointers[pLength - 1], timemillis, initial_x * canvas.width, initial_y * canvas.height);
+
+    let full_circle_points = calculateNormalizedCircleCoordinates(initial_x, initial_y, 0.1, 25);
+    let circle_points= [...full_circle_points];
+
+    return setInterval(function () {
+        console.log("timer running")
+        let myPointer = pointers.find(p => p.id == timemillis);
+
+        if (circle_points.length < 1) {
+            circle_points = [...full_circle_points];
+        }
+        const currentItem = circle_points.pop();
+        console.log(currentItem);
+
+        updatePointerMoveData(myPointer, currentItem.x * canvas.width, currentItem.y * canvas.height);
+
+
+
+        // let circle_points= [...full_circle_points];
+        // //let circle_points = calculateNormalizedCircleCoordinates(initial_x, initial_y, 0.2, 10);
+        //
+        // function processItems() {
+        //     if (circle_points.length < 1) {
+        //         circle_points = [...full_circle_points];
+        //     }
+        //     const currentItem = circle_points.pop();
+        //     console.log(currentItem);
+        //
+        //     updatePointerMoveData(myPointer, (currentItem.x + (0)) * canvas.width, (currentItem.y - (0)) * canvas.height);
+        //
+        //         // Continue the loop after 100ms
+        //         setTimeout(processItems, 100);
+        //     // } else {
+        //     //     console.log("List is empty. Stopping the loop.");
+        //     // }
+        // }
+        //
+        // // Start the loop
+        // processItems();
+
+
+        //
+        // if (button_id === 5) {
+        //     updatePointerMoveData(myPointer, (initial_x + (Math.random() / 32)) * canvas.width, (initial_y - (Math.random() / 16)) * canvas.height);
+        // } else {
+        //     updatePointerMoveData(myPointer, (initial_x + (Math.random() / 32)) * canvas.width, (initial_y + (Math.random() / 16)) * canvas.height);
+        // }
+
+
+        // splat(loop_x, loop_y, old_x * config.SPLAT_FORCE, old_y * config.SPLAT_FORCE, pointers[0].color);
+        // splat(loop_x, loop_y, old_x * config.SPLAT_FORCE, old_y * config.SPLAT_FORCE, pointers[0].color);
+        // splat(loop_x, loop_y, old_x * config.SPLAT_FORCE, old_y * config.SPLAT_FORCE, pointers[0].color);
+        // splat(loop_x, loop_y, old_x * config.SPLAT_FORCE, old_y * config.SPLAT_FORCE, pointers[0].color);
+        // splat(loop_x, loop_y, old_x * config.SPLAT_FORCE, old_y * config.SPLAT_FORCE, pointers[0].color);
+        // splat(loop_x, loop_y, old_x * config.SPLAT_FORCE, old_y * config.SPLAT_FORCE, pointers[0].color);
+        // splat(loop_x, loop_y, old_x * config.SPLAT_FORCE, old_y * config.SPLAT_FORCE, pointers[0].color);
+        // splat(loop_x, loop_y, old_x * config.SPLAT_FORCE, old_y * config.SPLAT_FORCE, pointers[0].color);
+        // let dx = pointer.deltaX * config.SPLAT_FORCE;
+        // let dy = pointer.deltaY * config.SPLAT_FORCE;
+
+        // if (loop_x >= 1) {
+        //     loop_counter = 100;
+        // }
+        //
+        // if (loop_y >= 1) {
+        //     loop_counter = 100;
+        // }
+
+        // if (loop_counter < 20) {
+        //     myLoop(delta_x, delta_y, pointer_id);
+        // } else {
+        //     updatePointerUpData(myPointer);
+        //     pointers.splice(pointers.findIndex(v => v.id === pointer_id), 1);
+        // }
+    }, 80);
 }
 
 // hex 1 pointing down
