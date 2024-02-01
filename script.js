@@ -1730,7 +1730,7 @@ function myLoop(delta_x, delta_y, pointer_id) {
 
         let myPointer = pointers.find(p => p.id == pointer_id);
 
-        updatePointerMoveData(myPointer, (loop_x + (Math.random() / 7)) * canvas.width, (loop_y + (Math.random() / 7)) * canvas.height);
+        updatePointerMoveData(myPointer, (loop_x ) * canvas.width, (loop_y) * canvas.height);
 
         // splat(loop_x, loop_y, old_x * config.SPLAT_FORCE, old_y * config.SPLAT_FORCE, pointers[0].color);
         // splat(loop_x, loop_y, old_x * config.SPLAT_FORCE, old_y * config.SPLAT_FORCE, pointers[0].color);
@@ -1751,7 +1751,7 @@ function myLoop(delta_x, delta_y, pointer_id) {
         //     loop_counter = 100;
         // }
 
-        if (loop_counter < 20) {
+        if (loop_counter < 100) {
             myLoop(delta_x, delta_y, pointer_id);
         } else {
             updatePointerUpData(myPointer);
@@ -1800,21 +1800,24 @@ function startButton(button_id, initial_x, initial_y) {
     let timemillis = Date.now();
     updatePointerDownData(pointers[pLength - 1], timemillis, initial_x * canvas.width, initial_y * canvas.height);
 
-    let full_circle_points = calculateNormalizedCircleCoordinates(initial_x, initial_y, 0.1, 25);
-    let circle_points= [...full_circle_points];
+    //let full_circle_points = calculateNormalizedCircleCoordinates(initial_x + (Math.random() / 8), initial_y, 0.1, 10);
+    let circle_points= []
 
     return setInterval(function () {
         console.log("timer running")
         let myPointer = pointers.find(p => p.id == timemillis);
 
         if (circle_points.length < 1) {
-            circle_points = [...full_circle_points];
+            circle_points = calculateNormalizedCircleCoordinates(initial_x + (Math.random() / 16), initial_y + (Math.random() / 16), 0.1, 10);
         }
         const currentItem = circle_points.pop();
         console.log(currentItem);
 
-        updatePointerMoveData(myPointer, currentItem.x * canvas.width, currentItem.y * canvas.height);
+        updatePointerMoveData(myPointer, (currentItem.x) * canvas.width, (currentItem.y) * canvas.height);
 
+        // for (let i = 0; i < 1000; i++) {
+        //     updatePointerMoveData(myPointer, (currentItem.x + Math.random() / 8) * canvas.width, (currentItem.y + Math.random() / 8) * canvas.height);
+        // }
 
 
         // let circle_points= [...full_circle_points];
@@ -1873,11 +1876,42 @@ function startButton(button_id, initial_x, initial_y) {
         //     updatePointerUpData(myPointer);
         //     pointers.splice(pointers.findIndex(v => v.id === pointer_id), 1);
         // }
-    }, 80);
+    }, 20);
 }
 
-// hex 1 pointing down
-// runLoop(h1_x, h1_y, 0, 0.02);
+// TODO: add code for initiating pointer up, and removing old pointers. kind of important, or it will get slower over time
 
-// hex 1 pointing down
-// runLoop(h4_x, h4_y, 0, -0.02);
+
+function startButtonIterAnimation(button_id, initial_x, initial_y, delta_x, delta_y) {
+
+    console.log("button started");
+
+    let pLength = pointers.push(new pointerPrototype());
+    let timemillis = Date.now();
+    updatePointerDownData(pointers[pLength - 1], timemillis, initial_x * canvas.width, initial_y * canvas.height);
+
+    let tmpPointer = pointers.find(p => p.id === timemillis);
+    tmpPointer.alexX = initial_x;
+    tmpPointer.alexY = initial_y;
+
+
+    //let full_circle_points = calculateNormalizedCircleCoordinates(initial_x + (Math.random() / 8), initial_y, 0.1, 10);
+
+    return {
+        handle: setInterval(function () {
+        console.log("timer running")
+        let myPointer = pointers.find(p => p.id === timemillis);
+
+        let newX = myPointer.alexX + delta_x;
+        let newY = myPointer.alexY + delta_y;
+
+        myPointer.alexX = newX;
+        myPointer.alexY = newY;
+
+        updatePointerMoveData(myPointer, newX * canvas.width, newY * canvas.height);
+    }, 20),
+        pointer_id: timemillis
+    }
+
+}
+
