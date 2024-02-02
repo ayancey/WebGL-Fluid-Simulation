@@ -1,2 +1,2 @@
 selenium
-pyjoystick
+pyserial
