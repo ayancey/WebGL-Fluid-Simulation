@@ -84,6 +84,15 @@ buttonKeyMap = {
     2: "H6"
 }
 
+buttonPPSMap = {
+    "H1": 1,
+    "H2": 1,
+    "H3": 1,
+    "H4": 1,
+    "H5": 1,
+    "H6": 1
+}
+
 last_pressed = time.time()
 
 
@@ -95,11 +104,15 @@ def key_received(key):
     if key.number in buttonKeyMap:
         hex_pressed = buttonKeyMap[key.number]
         if key.value:
+            x_delta = buttonPositionMap[hex_pressed]['x_delta'] * buttonPPSMap[hex_pressed]
+            y_delta = buttonPositionMap[hex_pressed]['y_delta'] * buttonPPSMap[hex_pressed]
+
             ret_data = driver.execute_script(
-                f"return startButtonIterAnimation(\"{hex_pressed}\", {buttonPositionMap[hex_pressed]['x']}, {buttonPositionMap[hex_pressed]['y']}, {buttonPositionMap[hex_pressed]['x_delta']}, {buttonPositionMap[hex_pressed]['y_delta']});")
+                f"return startButtonIterAnimation(\"{hex_pressed}\", {buttonPositionMap[hex_pressed]['x']}, {buttonPositionMap[hex_pressed]['y']}, {x_delta}, {y_delta});")
             last_pressed = time.time()
             buttonPositionMap[hex_pressed]["handle"] = ret_data["handle"]
             buttonPositionMap[hex_pressed]["pointer_id"] = ret_data["pointer_id"]
+            buttonPPSMap[hex_pressed] += 1
         else:
             if buttonPositionMap[hex_pressed]["handle"]:
                 driver.execute_script(f"clearInterval({buttonPositionMap[hex_pressed]['handle']});")
@@ -113,7 +126,13 @@ def check_last_pressed():
         if time.time() - last_pressed > 10:
             driver.execute_script(f"splatStack.push(parseInt(Math.random() * 20) + 5);")
 
+        for hexa in buttonPPSMap:
+            if buttonPPSMap[hexa] > 1:
+                buttonPPSMap[hexa] -= 1
+
         time.sleep(1)
+
+        print(buttonPPSMap)
 
 
 threading.Thread(target=check_last_pressed).start()
