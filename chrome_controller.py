@@ -51,7 +51,7 @@ buttonPositionMap = {
         "y_delta": -0.0029,
         "handle": None,
         "pointer_id": None,
-        "color": Color("green")
+        "color": Color("red")
     },
     "H4": {
         "x": 0.5,
@@ -78,7 +78,7 @@ buttonPositionMap = {
         "y_delta": 0.0029,
         "handle": None,
         "pointer_id": None,
-        "color": Color("red")
+        "color": Color("green")
     }
 }
 
