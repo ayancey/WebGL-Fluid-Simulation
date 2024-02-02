@@ -5,7 +5,8 @@ from pyjoystick.sdl2 import Key, Joystick, run_event_loop
 from selenium.webdriver.chrome.options import Options
 
 options = Options()
-options.add_argument("--window-size=1000,1000")
+options.add_argument("--window-size=1000,1031")
+options.add_argument("--app=http://localhost:63342/WebGL-Fluid-Simulation/index.html")
 options.add_experimental_option("useAutomationExtension", False)
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 
@@ -25,50 +26,50 @@ def print_remove(joy):
 
 buttonPositionMap = {
     "H1": {
-        "x": 1920 / 3840,
-        "y": 37 / 2160,
+        "x": 0.5,
+        "y": 0,
         "x_delta": 0,
         "y_delta": 0.005,
         "handle": None,
         "pointer_id": None
     },
     "H2": {
-        "x": 2864 / 3840,
-        "y": 541 / 2160,
+        "x": 0.93,
+        "y": 0.25,
         "x_delta": -0.005,
-        "y_delta": 0.005,
+        "y_delta": 0.0029,
         "handle": None,
         "pointer_id": None
     },
     "H3": {
-        "x": 2874 / 3840,
-        "y": 1603 / 2160,
+        "x": 0.93,
+        "y": 0.75,
         "x_delta": -0.005,
-        "y_delta": -0.005,
+        "y_delta": -0.0029,
         "handle": None,
         "pointer_id": None
     },
     "H4": {
-        "x": 1920 / 3840,
-        "y": 2125 / 2160,
+        "x": 0.5,
+        "y": 1,
         "x_delta": 0,
         "y_delta": -0.005,
         "handle": None,
         "pointer_id": None
     },
     "H5": {
-        "x": 966 / 3840,
-        "y": 1603 / 2160,
+        "x": 0.07,
+        "y": 0.75,
         "x_delta": 0.005,
-        "y_delta": -0.005,
+        "y_delta": -0.0029,
         "handle": None,
         "pointer_id": None
     },
     "H6": {
-        "x": 968 / 3840,
-        "y": 539 / 2160,
+        "x": 0.07,
+        "y": 0.25,
         "x_delta": 0.005,
-        "y_delta": 0.005,
+        "y_delta": 0.0029,
         "handle": None,
         "pointer_id": None
     }
