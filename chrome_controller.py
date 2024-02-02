@@ -3,6 +3,7 @@ import time
 from selenium import webdriver
 from pyjoystick.sdl2 import Key, Joystick, run_event_loop
 from selenium.webdriver.chrome.options import Options
+from colour import Color
 
 options = Options()
 options.add_argument("--window-size=1000,1031")
@@ -31,7 +32,8 @@ buttonPositionMap = {
         "x_delta": 0,
         "y_delta": 0.005,
         "handle": None,
-        "pointer_id": None
+        "pointer_id": None,
+        "color": Color("yellow")
     },
     "H2": {
         "x": 0.93,
@@ -39,7 +41,8 @@ buttonPositionMap = {
         "x_delta": -0.005,
         "y_delta": 0.0029,
         "handle": None,
-        "pointer_id": None
+        "pointer_id": None,
+        "color": Color("orange")
     },
     "H3": {
         "x": 0.93,
@@ -47,7 +50,8 @@ buttonPositionMap = {
         "x_delta": -0.005,
         "y_delta": -0.0029,
         "handle": None,
-        "pointer_id": None
+        "pointer_id": None,
+        "color": Color("green")
     },
     "H4": {
         "x": 0.5,
@@ -55,7 +59,8 @@ buttonPositionMap = {
         "x_delta": 0,
         "y_delta": -0.005,
         "handle": None,
-        "pointer_id": None
+        "pointer_id": None,
+        "color": Color("purple")
     },
     "H5": {
         "x": 0.07,
@@ -63,7 +68,8 @@ buttonPositionMap = {
         "x_delta": 0.005,
         "y_delta": -0.0029,
         "handle": None,
-        "pointer_id": None
+        "pointer_id": None,
+        "color": Color("blue")
     },
     "H6": {
         "x": 0.07,
@@ -71,7 +77,8 @@ buttonPositionMap = {
         "x_delta": 0.005,
         "y_delta": 0.0029,
         "handle": None,
-        "pointer_id": None
+        "pointer_id": None,
+        "color": Color("red")
     }
 }
 
@@ -107,8 +114,11 @@ def key_received(key):
             x_delta = buttonPositionMap[hex_pressed]['x_delta'] * buttonPPSMap[hex_pressed]
             y_delta = buttonPositionMap[hex_pressed]['y_delta'] * buttonPPSMap[hex_pressed]
 
+            r, g, b = buttonPositionMap[hex_pressed]["color"].rgb
+
+
             ret_data = driver.execute_script(
-                f"return startButtonIterAnimation(\"{hex_pressed}\", {buttonPositionMap[hex_pressed]['x']}, {buttonPositionMap[hex_pressed]['y']}, {x_delta}, {y_delta});")
+                f"return startButtonIterAnimation(\"{hex_pressed}\", {buttonPositionMap[hex_pressed]['x']}, {buttonPositionMap[hex_pressed]['y']}, {x_delta}, {y_delta}, {{r:{r},g:{g},b:{b}}});")
             last_pressed = time.time()
             buttonPositionMap[hex_pressed]["handle"] = ret_data["handle"]
             buttonPositionMap[hex_pressed]["pointer_id"] = ret_data["pointer_id"]

@@ -1546,7 +1546,7 @@ window.addEventListener('keydown', e => {
         splatStack.push(parseInt(Math.random() * 20) + 5);
 });
 
-function updatePointerDownData(pointer, id, posX, posY) {
+function updatePointerDownData(pointer, id, posX, posY, color) {
     pointer.id = id;
     pointer.down = true;
     pointer.moved = false;
@@ -1556,7 +1556,7 @@ function updatePointerDownData(pointer, id, posX, posY) {
     pointer.prevTexcoordY = pointer.texcoordY;
     pointer.deltaX = 0;
     pointer.deltaY = 0;
-    pointer.color = generateColor();
+    pointer.color = color;
     console.log("downdata");
 }
 
@@ -1882,13 +1882,13 @@ function startButton(button_id, initial_x, initial_y) {
 // TODO: add code for initiating pointer up, and removing old pointers. kind of important, or it will get slower over time
 
 
-function startButtonIterAnimation(button_id, initial_x, initial_y, delta_x, delta_y) {
+function startButtonIterAnimation(button_id, initial_x, initial_y, delta_x, delta_y, color) {
 
     console.log("button started");
 
     let pLength = pointers.push(new pointerPrototype());
     let timemillis = Date.now();
-    updatePointerDownData(pointers[pLength - 1], timemillis, initial_x * canvas.width, initial_y * canvas.height);
+    updatePointerDownData(pointers[pLength - 1], timemillis, initial_x * canvas.width, initial_y * canvas.height, color);
 
     let tmpPointer = pointers.find(p => p.id === timemillis);
     tmpPointer.alexX = initial_x;
