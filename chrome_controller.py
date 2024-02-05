@@ -111,6 +111,7 @@ def key_received(key):
     if key.number in buttonKeyMap:
         hex_pressed = buttonKeyMap[key.number]
         if key.value:
+            # Velocity goes up if the button is pressed repeatedly
             x_delta = buttonPositionMap[hex_pressed]['x_delta'] * buttonPPSMap[hex_pressed]
             y_delta = buttonPositionMap[hex_pressed]['y_delta'] * buttonPPSMap[hex_pressed]
 
@@ -133,8 +134,11 @@ def key_received(key):
 def check_last_pressed():
     global last_pressed
     while True:
+        # If button hasn't been pressed in 10 seconds, make random splats and reset the speed
         if time.time() - last_pressed > 10:
             driver.execute_script(f"splatStack.push(parseInt(Math.random() * 20) + 5);")
+            buttonPPSMap = dict.fromkeys(buttonPPSMap, 1)
+
 
         for hexa in buttonPPSMap:
             if buttonPPSMap[hexa] > 1:
