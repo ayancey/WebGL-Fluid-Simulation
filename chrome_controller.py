@@ -126,10 +126,8 @@ def key_received(key):
             buttonPPSMap[hex_pressed] += 1
         else:
             if buttonPositionMap[hex_pressed]["handle"]:
-                driver.execute_script(f"clearInterval({buttonPositionMap[hex_pressed]['handle']});")
-                driver.execute_script(
-                    f"pointers.splice(pointers.findIndex(v => v.id === {buttonPositionMap[hex_pressed]['pointer_id']}), 1);")
-
+                driver.execute_script(f"setTimeout(function(){clearInterval({buttonPositionMap[hex_pressed]['handle']});pointers.splice(pointers.findIndex(v => v.id === {buttonPositionMap[hex_pressed]['pointer_id']}), 1); }, 500)")
+    
 
 def check_last_pressed():
     global last_pressed
