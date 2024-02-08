@@ -91,15 +91,6 @@ buttonKeyMap = {
     2: "H6"
 }
 
-buttonPPSMap = {
-    "H1": 1,
-    "H2": 1,
-    "H3": 1,
-    "H4": 1,
-    "H5": 1,
-    "H6": 1
-}
-
 last_pressed = time.time()
 
 
@@ -112,18 +103,16 @@ def key_received(key):
         hex_pressed = buttonKeyMap[key.number]
         if key.value:
             # Velocity goes up if the button is pressed repeatedly
-            x_delta = buttonPositionMap[hex_pressed]['x_delta'] * buttonPPSMap[hex_pressed]
-            y_delta = buttonPositionMap[hex_pressed]['y_delta'] * buttonPPSMap[hex_pressed]
+            x_delta = buttonPositionMap[hex_pressed]['x_delta']
+            y_delta = buttonPositionMap[hex_pressed]['y_delta']
 
             r, g, b = buttonPositionMap[hex_pressed]["color"].rgb
-
 
             ret_data = driver.execute_script(
                 f"return startButtonIterAnimation(\"{hex_pressed}\", {buttonPositionMap[hex_pressed]['x']}, {buttonPositionMap[hex_pressed]['y']}, {x_delta}, {y_delta}, {{r:{r},g:{g},b:{b}}});")
             last_pressed = time.time()
             buttonPositionMap[hex_pressed]["handle"] = ret_data["handle"]
             buttonPositionMap[hex_pressed]["pointer_id"] = ret_data["pointer_id"]
-            buttonPPSMap[hex_pressed] += 1
         else:
             if buttonPositionMap[hex_pressed]["handle"]:
                 driver.execute_script(f"setTimeout(function(){{clearInterval({buttonPositionMap[hex_pressed]['handle']});pointers.splice(pointers.findIndex(v => v.id === {buttonPositionMap[hex_pressed]['pointer_id']}), 1);}}, 250);")
@@ -131,21 +120,12 @@ def key_received(key):
 
 def check_last_pressed():
     global last_pressed
-    global buttonPPSMap
     while True:
         # If button hasn't been pressed in 10 seconds, make random splats and reset the speed
         if time.time() - last_pressed > 10:
             driver.execute_script(f"splatStack.push(parseInt(Math.random() * 20) + 5);")
-            buttonPPSMap = dict.fromkeys(buttonPPSMap, 1)
-
-
-        for hexa in buttonPPSMap:
-            if buttonPPSMap[hexa] > 1:
-                buttonPPSMap[hexa] -= 1
 
         time.sleep(1)
-
-        print(buttonPPSMap)
 
 
 threading.Thread(target=check_last_pressed).start()
