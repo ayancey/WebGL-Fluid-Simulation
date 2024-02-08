@@ -126,11 +126,12 @@ def key_received(key):
             buttonPPSMap[hex_pressed] += 1
         else:
             if buttonPositionMap[hex_pressed]["handle"]:
-                driver.execute_script(f"setTimeout(function(){clearInterval({buttonPositionMap[hex_pressed]['handle']});pointers.splice(pointers.findIndex(v => v.id === {buttonPositionMap[hex_pressed]['pointer_id']}), 1); }, 500)")
+                driver.execute_script(f"setTimeout(function(){{clearInterval({buttonPositionMap[hex_pressed]['handle']});pointers.splice(pointers.findIndex(v => v.id === {buttonPositionMap[hex_pressed]['pointer_id']}), 1);}}, 250);")
     
 
 def check_last_pressed():
     global last_pressed
+    global buttonPPSMap
     while True:
         # If button hasn't been pressed in 10 seconds, make random splats and reset the speed
         if time.time() - last_pressed > 10:
