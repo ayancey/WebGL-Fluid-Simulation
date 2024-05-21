@@ -93,13 +93,22 @@ buttonKeyMap = {
 
 last_pressed = time.time()
 
+idle = False
+
 
 def key_received(key):
     global last_pressed
+    global idle
     if key.keytype == "Axis":
         return
 
     if key.number in buttonKeyMap:
+        last_pressed = time.time()
+
+        if idle:
+            driver.execute_script("config.DENSITY_DISSIPATION = 10;setTimeout(function(){config.DENSITY_DISSIPATION = 0.7;}, 1000);")
+            idle = False
+
         hex_pressed = buttonKeyMap[key.number]
         if key.value:
             # Velocity goes up if the button is pressed repeatedly
@@ -110,20 +119,24 @@ def key_received(key):
 
             ret_data = driver.execute_script(
                 f"return startButtonIterAnimation(\"{hex_pressed}\", {buttonPositionMap[hex_pressed]['x']}, {buttonPositionMap[hex_pressed]['y']}, {x_delta}, {y_delta}, {{r:{r},g:{g},b:{b}}});")
-            last_pressed = time.time()
+
             buttonPositionMap[hex_pressed]["handle"] = ret_data["handle"]
             buttonPositionMap[hex_pressed]["pointer_id"] = ret_data["pointer_id"]
         else:
             if buttonPositionMap[hex_pressed]["handle"]:
                 driver.execute_script(f"setTimeout(function(){{clearInterval({buttonPositionMap[hex_pressed]['handle']});pointers.splice(pointers.findIndex(v => v.id === {buttonPositionMap[hex_pressed]['pointer_id']}), 1);}}, 250);")
-    
+
+
+
 
 def check_last_pressed():
     global last_pressed
+    global idle
     while True:
         # If button hasn't been pressed in 10 seconds, make random splats and reset the speed
         if time.time() - last_pressed > 10:
             driver.execute_script(f"splatStack.push(parseInt(Math.random() * 20) + 5);")
+            idle = True
 
         time.sleep(1)
 
