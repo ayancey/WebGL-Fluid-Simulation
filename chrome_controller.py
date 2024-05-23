@@ -1,9 +1,10 @@
 import threading
 import time
 from selenium import webdriver
-from pyjoystick.sdl2 import Key, Joystick, run_event_loop
 from selenium.webdriver.chrome.options import Options
 from colour import Color
+import pygame
+import sys
 
 options = Options()
 options.add_argument("--window-size=1000,1031")
@@ -83,12 +84,12 @@ buttonPositionMap = {
 }
 
 buttonKeyMap = {
-    3: "H1",
-    4: "H2",
-    5: "H3",
-    6: "H4",
-    7: "H5",
-    2: "H6"
+    pygame.K_1: "H1",
+    pygame.K_2: "H2",
+    pygame.K_3: "H3",
+    pygame.K_4: "H4",
+    pygame.K_5: "H5",
+    pygame.K_6: "H6"
 }
 
 last_pressed = time.time()
@@ -99,18 +100,19 @@ idle = False
 def key_received(key):
     global last_pressed
     global idle
-    if key.keytype == "Axis":
+
+    if event.type not in [pygame.KEYDOWN, pygame.KEYUP]:
         return
 
-    if key.number in buttonKeyMap:
+    if key.key in buttonKeyMap:
         last_pressed = time.time()
 
         if idle:
-            driver.execute_script("config.DENSITY_DISSIPATION = 10;setTimeout(function(){config.DENSITY_DISSIPATION = 0.7;}, 1000);")
+            driver.execute_script("config.DENSITY_DISSIPATION = 10;setTimeout(function(){config.DENSITY_DISSIPATION = 0.7;}, 250);")
             idle = False
 
-        hex_pressed = buttonKeyMap[key.number]
-        if key.value:
+        hex_pressed = buttonKeyMap[key.key]
+        if event.type == pygame.KEYDOWN:
             # Velocity goes up if the button is pressed repeatedly
             x_delta = buttonPositionMap[hex_pressed]['x_delta']
             y_delta = buttonPositionMap[hex_pressed]['y_delta']
@@ -122,7 +124,7 @@ def key_received(key):
 
             buttonPositionMap[hex_pressed]["handle"] = ret_data["handle"]
             buttonPositionMap[hex_pressed]["pointer_id"] = ret_data["pointer_id"]
-        else:
+        elif event.type == pygame.KEYUP:
             if buttonPositionMap[hex_pressed]["handle"]:
                 driver.execute_script(f"setTimeout(function(){{clearInterval({buttonPositionMap[hex_pressed]['handle']});pointers.splice(pointers.findIndex(v => v.id === {buttonPositionMap[hex_pressed]['pointer_id']}), 1);}}, 250);")
 
@@ -143,4 +145,49 @@ def check_last_pressed():
 
 threading.Thread(target=check_last_pressed).start()
 
-run_event_loop(print_add, print_remove, key_received)
+
+
+# Initialize Pygame
+pygame.init()
+
+# Set up display
+width, height = 640, 480
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("Pygame Key Input Example")
+
+# Main loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        key_received(event)
+
+        # Check for key presses
+        # if event.type == pygame.KEYDOWN:
+        #     if event.key == pygame.K_1:
+        #         print("Number 1 key pressed")
+        #     elif event.key == pygame.K_2:
+        #         print("Number 2 key pressed")
+        #     elif event.key == pygame.K_3:
+        #         print("Number 3 key pressed")
+        #     elif event.key == pygame.K_4:
+        #         print("Number 4 key pressed")
+        #     elif event.key == pygame.K_5:
+        #         print("Number 5 key pressed")
+        #     elif event.key == pygame.K_6:
+        #         print("Number 6 key pressed")
+
+    # Fill the screen with a color (optional)
+    #screen.fill((0, 0, 0))
+
+    # Update the display
+    pygame.display.flip()
+
+# Quit Pygame
+pygame.quit()
+sys.exit()
+
+
+#run_event_loop(print_add, print_remove, key_received)
