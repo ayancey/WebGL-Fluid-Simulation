@@ -90,37 +90,35 @@ buttonPositionMap = {
 
 
 buttonKeyMap = {
-    "h1": "H1",
-    "h2": "H2",
-    "h3": "H3",
-    "h4": "H4",
-    "h5": "H5",
-    "h6": "H6"
+    pygame.K_1: "H1",
+    pygame.K_2: "H2",
+    pygame.K_3: "H3",
+    pygame.K_4: "H4",
+    pygame.K_5: "H5",
+    pygame.K_6: "H6"
 }
 last_pressed = time.time()
 
 idle = False
 
 
-def key_received(unused_addr, pressed):
+def key_received(key):
     global last_pressed
     global idle
 
-    # if event.type not in [pygame.KEYDOWN, pygame.KEYUP]:
-    #     return
-    print((unused_addr, pressed))
+    if event.type not in [pygame.KEYDOWN, pygame.KEYUP]:
+        return
 
-    key = unused_addr.split("/")[-1]
-
-    if key in buttonKeyMap:
+    if key.key in buttonKeyMap:
         last_pressed = time.time()
 
         if idle:
+            # Massively raise density dissipation for 250ms to clear the screen quickly
             driver.execute_script("config.DENSITY_DISSIPATION = 10;setTimeout(function(){config.DENSITY_DISSIPATION = 0.7;}, 250);")
             idle = False
 
-        hex_pressed = buttonKeyMap[key]
-        if pressed:
+        hex_pressed = buttonKeyMap[key.key]
+        if event.type == pygame.KEYDOWN:
             # Velocity goes up if the button is pressed repeatedly
             x_delta = buttonPositionMap[hex_pressed]['x_delta']
             y_delta = buttonPositionMap[hex_pressed]['y_delta']
@@ -132,11 +130,9 @@ def key_received(unused_addr, pressed):
 
             buttonPositionMap[hex_pressed]["handle"] = ret_data["handle"]
             buttonPositionMap[hex_pressed]["pointer_id"] = ret_data["pointer_id"]
-        else:
+        elif event.type == pygame.KEYUP:
             if buttonPositionMap[hex_pressed]["handle"]:
                 driver.execute_script(f"setTimeout(function(){{clearInterval({buttonPositionMap[hex_pressed]['handle']});pointers.splice(pointers.findIndex(v => v.id === {buttonPositionMap[hex_pressed]['pointer_id']}), 1);}}, 250);")
-
-
 
 
 def check_last_pressed():
@@ -154,73 +150,39 @@ def check_last_pressed():
 threading.Thread(target=check_last_pressed).start()
 
 
-def print_volume_handler(unused_addr, args, volume):
-  print("[{0}] ~ {1}".format(args[0], volume))
-
-
-def print_compute_handler(unused_addr, args, volume):
-  try:
-    print("[{0}] ~ {1}".format(args[0], args[1](volume)))
-  except ValueError: pass
-
-
-def vorticity_handler(unused_addr, vort):
-    print(f"changed vorticity to {vort}")
-    driver.execute_script(f"config.CURL = {vort};")
+def config_handler(addr, val):
+    driver.execute_script(f"config.{addr.split('/')[-1]} = {val};")
+    print(f"changed {addr.split('/')[-1]} to {val}")
 
 
 dispatcher = Dispatcher()
-dispatcher.map("/filter", print)
-dispatcher.map("/button/*", key_received)
-dispatcher.map("/vorticity", vorticity_handler)
-dispatcher.map("/logvolume", print_compute_handler, "Log volume", math.log)
+dispatcher.map("/config/*", config_handler)
 
 server = osc_server.ThreadingOSCUDPServer(("0.0.0.0", 6420), dispatcher)
 print("Serving on {}".format(server.server_address))
-server.serve_forever()
 
+threading.Thread(target=server.serve_forever).start()
 
 # Initialize Pygame
-# pygame.init()
-#
-# # Set up display
-# width, height = 640, 480
-# screen = pygame.display.set_mode((width, height))
-# pygame.display.set_caption("Pygame Key Input Example")
-#
-# # Main loop
-# running = True
-# while running:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             running = False
-#
-#         key_received(event)
-#
-#         # Check for key presses
-#         # if event.type == pygame.KEYDOWN:
-#         #     if event.key == pygame.K_1:
-#         #         print("Number 1 key pressed")
-#         #     elif event.key == pygame.K_2:
-#         #         print("Number 2 key pressed")
-#         #     elif event.key == pygame.K_3:
-#         #         print("Number 3 key pressed")
-#         #     elif event.key == pygame.K_4:
-#         #         print("Number 4 key pressed")
-#         #     elif event.key == pygame.K_5:
-#         #         print("Number 5 key pressed")
-#         #     elif event.key == pygame.K_6:
-#         #         print("Number 6 key pressed")
-#
-#     # Fill the screen with a color (optional)
-#     #screen.fill((0, 0, 0))
-#
-#     # Update the display
-#     pygame.display.flip()
-#
-# # Quit Pygame
-# pygame.quit()
-# sys.exit()
+pygame.init()
 
+# Set up display
+width, height = 640, 480
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("GigaHex Keyboard Control (MUST BE FOCUSED)")
 
-#run_event_loop(print_add, print_remove, key_received)
+# Main loop
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        key_received(event)
+
+    # Update the display
+    pygame.display.flip()
+
+# Quit Pygame
+pygame.quit()
+sys.exit()
