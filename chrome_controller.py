@@ -7,15 +7,13 @@ import pygame
 import sys
 from pythonosc.dispatcher import Dispatcher
 from pythonosc import osc_server
-import math
-
+import datetime
 
 options = Options()
 options.add_argument("--window-size=1000,1031")
 options.add_argument("--app=http://localhost:8000")
 options.add_experimental_option("useAutomationExtension", False)
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
-
 
 driver = webdriver.Chrome(options=options)
 
@@ -88,7 +86,6 @@ buttonPositionMap = {
     }
 }
 
-
 buttonKeyMap = {
     pygame.K_1: "H1",
     pygame.K_2: "H2",
@@ -101,10 +98,15 @@ last_pressed = time.time()
 
 idle = False
 
+total_button_presses = 0
+total_unidle_transition = 0
+
 
 def key_received(key):
     global last_pressed
     global idle
+    global total_button_presses
+    global total_unidle_transition
 
     if event.type not in [pygame.KEYDOWN, pygame.KEYUP]:
         return
@@ -119,11 +121,15 @@ def key_received(key):
 
         if idle:
             # Massively raise density dissipation for 250ms to clear the screen quickly
-            driver.execute_script("config.DENSITY_DISSIPATION = 10;setTimeout(function(){config.DENSITY_DISSIPATION = 0.7;}, 250);")
+            driver.execute_script(
+                "config.DENSITY_DISSIPATION = 10;setTimeout(function(){config.DENSITY_DISSIPATION = 0.7;}, 250);")
             idle = False
+            total_unidle_transition += 1
 
         hex_pressed = buttonKeyMap[key.key]
         if event.type == pygame.KEYDOWN:
+            total_button_presses += 1
+
             # Velocity goes up if the button is pressed repeatedly
             x_delta = buttonPositionMap[hex_pressed]['x_delta']
             y_delta = buttonPositionMap[hex_pressed]['y_delta']
@@ -137,7 +143,8 @@ def key_received(key):
             buttonPositionMap[hex_pressed]["pointer_id"] = ret_data["pointer_id"]
         elif event.type == pygame.KEYUP:
             if buttonPositionMap[hex_pressed]["handle"]:
-                driver.execute_script(f"setTimeout(function(){{clearInterval({buttonPositionMap[hex_pressed]['handle']});pointers.splice(pointers.findIndex(v => v.id === {buttonPositionMap[hex_pressed]['pointer_id']}), 1);}}, 250);")
+                driver.execute_script(
+                    f"setTimeout(function(){{clearInterval({buttonPositionMap[hex_pressed]['handle']});pointers.splice(pointers.findIndex(v => v.id === {buttonPositionMap[hex_pressed]['pointer_id']}), 1);}}, 250);")
 
 
 def check_last_pressed():
@@ -153,6 +160,20 @@ def check_last_pressed():
 
 
 threading.Thread(target=check_last_pressed).start()
+
+
+def log_interacts():
+    while True:
+        try:
+            with open("interaction_log.txt", "a", encoding="utf-8") as f:
+                f.write(f"{datetime.datetime.now(datetime.timezone.utc)
+                        .isoformat()} - presses:{total_button_presses},transitions:{total_unidle_transition}\n")
+        except:
+            print("log write failed")
+        time.sleep(300)
+
+
+threading.Thread(target=log_interacts).start()
 
 
 def config_handler(addr, val):
