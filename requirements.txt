@@ -1,2 +1,4 @@
 selenium
-pyserial
+colour
+python-osc
+pygame
