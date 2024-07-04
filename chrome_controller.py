@@ -166,8 +166,7 @@ def log_interacts():
     while True:
         try:
             with open("interaction_log.txt", "a", encoding="utf-8") as f:
-                f.write(f"{datetime.datetime.now(datetime.timezone.utc)
-                        .isoformat()} - presses:{total_button_presses},transitions:{total_unidle_transition}\n")
+                f.write(f"{datetime.datetime.now(datetime.timezone.utc).isoformat()} - presses:{total_button_presses},transitions:{total_unidle_transition}\n")
         except:
             print("log write failed")
         time.sleep(300)
