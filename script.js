@@ -1856,3 +1856,12 @@ function startButtonIterAnimation(button_id, initial_x, initial_y, delta_x, delt
 
 }
 
+document.querySelector("div.main").style.visibility = "hidden";
+
+function toggle_config() {
+    if (document.querySelector("div.main").style.visibility === "visible") {
+        document.querySelector("div.main").style.visibility = "hidden";
+    } else {
+        document.querySelector("div.main").style.visibility = "visible";
+    }
+}

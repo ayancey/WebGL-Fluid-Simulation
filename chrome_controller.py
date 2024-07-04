@@ -109,6 +109,11 @@ def key_received(key):
     if event.type not in [pygame.KEYDOWN, pygame.KEYUP]:
         return
 
+    # Press m for menu toggle (hidden by default)
+    if key.key == 109:
+        if event.type == pygame.KEYUP:
+            driver.execute_script("toggle_config();")
+
     if key.key in buttonKeyMap:
         last_pressed = time.time()
 
