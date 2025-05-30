@@ -97,7 +97,15 @@ function pointerPrototype() {
 
 let pointers = [];
 let splatStack = [];
-pointers.push(new pointerPrototype());
+// pointers.push(new pointerPrototype());
+
+
+// Creating 6 new pointers with IDs "H1" through "H6" and adding them to the pointers array
+for (let i = 1; i <= 6; i++) {
+    let newPointer = new pointerPrototype();
+    newPointer.id = `H${i}`;
+    pointers.push(newPointer);
+}
 
 const {gl, ext} = getWebGLContext(canvas);
 
@@ -1822,6 +1830,82 @@ function startButton(button_id, initial_x, initial_y) {
 
 // TODO: add code for initiating pointer up, and removing old pointers. kind of important, or it will get slower over time
 
+let buttonPositionMap = {
+    "H1": {
+        "x": 0.5,
+        "y": 0,
+        "x_delta": 0,
+        "y_delta": 0.005,
+        "color": {"r": 1.0, "g": 0.9999999999999998, "b": 0.0},
+        "timer_handle": null
+    },
+    "H2": {
+        "x": 0.93,
+        "y": 0.25,
+        "x_delta": -0.005,
+        "y_delta": 0.0029,
+        "color": {"r": 1.0, "g": 0.27058823529411735, "b": 0.0},
+        "timer_handle": null
+    },
+    "H3": {
+        "x": 0.93,
+        "y": 0.75,
+        "x_delta": -0.005,
+        "y_delta": -0.0029,
+        "color": {"r": 1, "g": 0, "b": 0},
+        "timer_handle": null
+    },
+    "H4": {
+        "x": 0.5,
+        "y": 1,
+        "x_delta": 0,
+        "y_delta": -0.005,
+        "color": {"r": 0.5019607843137255, "g": 0.0, "b": 0.5019607843137254},
+        "timer_handle": null
+    },
+    "H5": {
+        "x": 0.07,
+        "y": 0.75,
+        "x_delta": 0.005,
+        "y_delta": -0.0029,
+        "color": {"r": 0, "g": 0, "b": 1},
+        "timer_handle": null
+    },
+    "H6": {
+        "x": 0.07,
+        "y": 0.25,
+        "x_delta": 0.005,
+        "y_delta": 0.0029,
+        "color": {"r": 0, "g": 1, "b": 0},
+        "timer_handle": null
+    }
+}
+
+function downHex(hex) {
+    let daPointer = pointers.find(p => p.id === hex);
+
+    updatePointerDownData(daPointer, hex, buttonPositionMap[hex].x * canvas.width, buttonPositionMap[hex].y * canvas.height, buttonPositionMap[hex].color)
+
+    daPointer.alexX = buttonPositionMap[hex].x;
+    daPointer.alexY = buttonPositionMap[hex].y;
+
+    buttonPositionMap[hex].timer_handle = setInterval(function () {
+        console.log("timer running")
+
+        let newX = daPointer.alexX + buttonPositionMap[hex].x_delta;
+        let newY = daPointer.alexY + buttonPositionMap[hex].y_delta;
+
+        daPointer.alexX = newX;
+        daPointer.alexY = newY;
+
+        updatePointerMoveData(daPointer, newX * canvas.width, newY * canvas.height);
+    }, 20);
+}
+
+function upHex(hex) {
+    clearInterval(buttonPositionMap[hex].timer_handle);
+    updatePointerUpData(pointers.find(p => p.id === hex));
+}
 
 function startButtonIterAnimation(button_id, initial_x, initial_y, delta_x, delta_y, color) {
 
